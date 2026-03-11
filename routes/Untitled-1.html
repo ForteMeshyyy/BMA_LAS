@@ -1,0 +1,36 @@
+    <!--  <div class="card table-card">
+            <h3>LINKS</h3>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>LINK ID</th>
+                            <th>Link Title</th>
+                            <th>URL</th>
+                            <th>Schedule</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @foreach($links as $data)
+                        <tr>
+                            <td>{{ $data->id }}</td>
+                            <td>{{ $data->title ?? '-' }}</td>
+                            <td>{{ $data->url ?? '-' }}</td>
+                            <td>{{ $data->schedule }}</td>
+                            <td>
+                                <form action="/form/{{ $data->id }}" method="POST">
+                                    @csrf
+                                    @method('PATCH')
+                                    <input type="hidden" name="is_active" value="0">
+                                    <button class="remove-btn" type="submit">Remove</button>
+                                </form>
+                            </td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </div>
+ -->
