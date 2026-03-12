@@ -42,6 +42,33 @@
             document.getElementById('type').addEventListener('change', toggleFields);
             toggleFields();
         });
+
+        function openEdit(id, title, content, url, schedule, type) {
+            document.getElementById('edit-form').action = `/form/${id}/edit`;
+            document.getElementById('edit-title').value = title;
+
+            document.getElementById('edit-content').value = content;
+            document.getElementById('edit-url').value = url;
+            document.getElementById('edit-schedule').value = schedule.split(' ')[0];
+            document.getElementById('edit-modal').style.display = 'block';
+            toggleEditFields(type);
+        }
+
+        function toggleEditFields(type) {
+            const contentRow = document.getElementById('edit-content-row');
+            const urlRow = document.getElementById('edit-url-row');
+            if (type === 'announcement') {
+                contentRow.style.display = 'block';
+                urlRow.style.display = 'none';
+            } else {
+                contentRow.style.display = 'none';
+                urlRow.style.display = 'block';
+            }
+        }
+
+        function closeEdit() {
+            document.getElementById('edit-modal').style.display = 'none';
+        }
     </script>
 </head>
 
@@ -137,13 +164,15 @@
                                     <button class="activate-btn" type="submit" onclick="return checkIfActive({{ $data->is_active ? 'true' : 'false' }})">Activate</button>
                                 </form>
                                 <br>
-                                <form action="/form/{{ $data->id }}" method="POST">
-                                    @csrf
-                                    @method('PATCH')
-                                    <input type="hidden" name="is_active" value="0">
-                                    <button class="resched-btn" type="submit">ReSched</button>
-                                </form>
-                                <br>
+                                <button class="edit-btn" type="button" onclick="openEdit(
+                                        {{ $data->id }},
+                                        '{{ $data->announcement->title ?? '' }}',
+                                        '{{ $data->announcement->content ?? '' }}',
+                                        ' ',
+                                        '{{ $data->schedule }}',
+                                        '{{ $data->type }}'
+                                    )">Edit</button>
+                                <br><br>
                                 <form action="/form/{{ $data->id }}" method="POST">
                                     @csrf
                                     @method('PATCH')
@@ -197,13 +226,15 @@
                                     <button class="activate-btn" type="submit" onclick="return checkIfActive({{ $data->is_active ? 'true' : 'false' }})">Activate</button>
                                 </form>
                                 <br>
-                                <form action="/form/{{ $data->id }}" method="POST">
-                                    @csrf
-                                    @method('PATCH')
-                                    <input type="hidden" name="is_active" value="0">
-                                    <button class="resched-btn" type="submit">ReSched</button>
-                                </form>
-                                <br>
+                                <button class="edit-btn" type="button" onclick="openEdit(
+                                        {{ $data->id }},
+                                        '{{ $data->link->title ?? '' }}',
+                                        '',
+                                        '{{ $data->link->url ?? '' }}',
+                                        '{{ $data->schedule }}',
+                                        '{{ $data->type }}'
+                                    )">Edit</button>
+                                <br><br>
                                 <form action="/form/{{ $data->id }}" method="POST">
                                     @csrf
                                     @method('PATCH')
@@ -221,6 +252,35 @@
         </div>
 
 
+    </div>
+
+    <div id="edit-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.4); z-index:999;">
+        <div style="background:white; padding:24px; border-radius:10px; width:400px; margin:100px auto;">
+            <h3>Edit</h3><br>
+            <form id="edit-form" method="POST">
+                @csrf
+                @method('PATCH')
+
+                <label>Title</label>
+                <input type="text" name="title" id="edit-title" required><br><br>
+
+                <div id="edit-content-row">
+                    <label>Content</label>
+                    <input type="text" name="content" id="edit-content"><br><br>
+                </div>
+
+                <div id="edit-url-row">
+                    <label>URL</label>
+                    <input type="text" name="url" id="edit-url"><br><br>
+                </div>
+
+                <label>Schedule Date</label>
+                <input type="date" name="schedule" id="edit-schedule" required><br><br>
+
+                <button type="submit" class="submit-main">Save Changes</button><br><br>
+                <button type="button" onclick="closeEdit()" class="cancel-btn">Cancel</button>
+            </form>
+        </div>
     </div>
 
 </body>

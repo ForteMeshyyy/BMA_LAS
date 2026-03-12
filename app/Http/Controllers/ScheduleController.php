@@ -85,10 +85,6 @@ class ScheduleController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Schedule $schedule)
-    {
-        //
-    }
 
     /**
      * Update the specified resource in storage.
@@ -166,15 +162,54 @@ class ScheduleController extends Controller
         return response()->json([
             'announcements' => Schedule::with('announcement:id,title,content')
                 ->where('type', 'announcement')
-                ->where('is_active', 1)->orderBy('is_active', 'asc')
+                ->where('is_active', 1)
+                ->orderBy('is_active', 'asc')
                 ->get()
-                ->pluck('announcement'),
+                ->map(fn($s) => array_merge(
+                    $s->announcement->toArray(),
+                    ['schedule' => $s->schedule]
+                )),
 
             'links' => Schedule::with('link:id,title,url')
                 ->where('type', 'link')
-                ->where('schedule', $today)->where('is_active', 1)->orderBy('is_active', 'asc')
+                ->where('schedule', $today)
+                ->where('is_active', 1)
+                ->orderBy('is_active', 'asc')
                 ->get()
-                ->pluck('link'),
+                ->map(fn($s) => array_merge(
+                    $s->link->toArray(),
+                    ['schedule' => $s->schedule]
+                )),
         ]);
+    }
+
+    public function edit(Request $request, $id)
+    {
+        $schedule = Schedule::findOrFail($id);
+
+        $validated = $request->validate([
+            'title'    => 'required|string',
+            'schedule' => 'required|date',
+            'content'  => 'nullable|string',
+            'url'      => 'nullable|url',
+        ]);
+
+        if ($schedule->announcement_id) {
+            Announcements::find($schedule->announcement_id)->update([
+                'title'   => $validated['title'],
+                'content' => $validated['content'],
+            ]);
+        }
+
+        if ($schedule->link_id) {
+            Links::find($schedule->link_id)->update([
+                'title' => $validated['title'],
+                'url'   => $validated['url'],
+            ]);
+        }
+
+        $schedule->update(['schedule' => $validated['schedule']]);
+
+        return redirect()->back()->with('success', 'Schedule edited successfully!');
     }
 }

@@ -300,6 +300,20 @@ tbody tr:hover {
     white-space: nowrap;
 }
 
+.cancel-btn {
+    padding: 5px 12px;
+    background: transparent;
+    border: 1px solid rgba(255,92,92);
+    color: var(--danger);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+    white-space: nowrap;
+}
+
 .activate-btn {
     padding: 5px 12px;
     background: transparent;
@@ -314,7 +328,7 @@ tbody tr:hover {
     white-space: nowrap;
 }
 
-.resched-btn {
+.edit-btn {
     padding: 5px 12px;
     background: transparent;
     border: 1px solid rgba(0,0,255);
