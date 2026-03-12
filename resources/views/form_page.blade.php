@@ -30,6 +30,14 @@
             }
         }
 
+        function checkIfActive(isActive) {
+            if (isActive) {
+                alert("The scheduled item is already active");
+                return false;
+            }
+            return true;
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('type').addEventListener('change', toggleFields);
             toggleFields();
@@ -94,30 +102,53 @@
             <div class="table-wrapper">
                 <h5>Announcements</h5>
                 <table>
+                    <colgroup>
+                        <col class="col-id">
+                        <col class="col-title">
+                        <col class="col-main">
+                        <col class="col-date">
+                        <col class="col-status">
+                        <col class="col-action">
+                    </colgroup>
                     <thead>
                         <tr>
                             <th>Ann. ID</th>
                             <th>Ann. Title</th>
                             <th>Content</th>
                             <th>Schedule</th>
+                            <th>Status</th>
                             <th>Action</th>
                         </tr>
                     </thead>
-
                     <tbody>
                         @foreach($schedules as $data)
                         @if($data->type === 'announcement')
                         <tr>
                             <td>{{ $data->announcement_id ?? '-' }}</td>
-                            <td>{{ $data->announcement->title ?? '-' }}</td>
+                            <td style="font-weight: bold;">{{ $data->announcement->title ?? '-' }}</td>
                             <td>{{ $data->announcement->content ?? '-' }}</td>
-                            <td>{{ $data->schedule ?? '-'}}</td>
+                            <td>{{ $data->schedule ?? '-' }}</td>
+                            <td>{{ $data->is_active ? 'Active' : 'Not Active' }}</td>
                             <td>
                                 <form action="/form/{{ $data->id }}" method="POST">
                                     @csrf
                                     @method('PATCH')
+                                    <input type="hidden" name="is_active" value="1">
+                                    <button class="activate-btn" type="submit" onclick="return checkIfActive({{ $data->is_active ? 'true' : 'false' }})">Activate</button>
+                                </form>
+                                <br>
+                                <form action="/form/{{ $data->id }}" method="POST">
+                                    @csrf
+                                    @method('PATCH')
                                     <input type="hidden" name="is_active" value="0">
-                                    <button class="remove-btn" type="submit">Remove</button>
+                                    <button class="resched-btn" type="submit">ReSched</button>
+                                </form>
+                                <br>
+                                <form action="/form/{{ $data->id }}" method="POST">
+                                    @csrf
+                                    @method('PATCH')
+                                    <input type="hidden" name="is_active" value="0">
+                                    <button class="deactivate-btn" type="submit">Deactivate</button>
                                 </form>
                             </td>
                         </tr>
@@ -130,12 +161,21 @@
             <div class="table-wrapper">
                 <h5>Links</h5>
                 <table>
+                    <colgroup>
+                        <col class="col-id">
+                        <col class="col-title">
+                        <col class="col-main">
+                        <col class="col-date">
+                        <col class="col-status">
+                        <col class="col-action">
+                    </colgroup>
                     <thead>
                         <tr>
                             <th>Link ID</th>
                             <th>Link Title</th>
                             <th>URL</th>
                             <th>Schedule</th>
+                            <th>Status</th>
                             <th>Action</th>
                         </tr>
                     </thead>
@@ -145,15 +185,30 @@
                         @if($data->type === 'link')
                         <tr>
                             <td>{{ $data->link_id ?? '-' }}</td>
-                            <td>{{ $data->link->title ?? '-' }}</td>
+                            <td style="font-weight: bold;">{{ $data->link->title ?? '-' }}</td>
                             <td>{{ $data->link->url ?? '-' }}</td>
                             <td>{{ $data->schedule ?? '-'}}</td>
+                            <td>{{ $data->is_active ? 'Active' : 'Not Active' }}</td>
                             <td>
-                                <form action="/form/{{ $data->link_id }}" method="POST">
+                                <form action="/form/{{ $data->id }}" method="POST">
+                                    @csrf
+                                    @method('PATCH')
+                                    <input type="hidden" name="is_active" value="1">
+                                    <button class="activate-btn" type="submit" onclick="return checkIfActive({{ $data->is_active ? 'true' : 'false' }})">Activate</button>
+                                </form>
+                                <br>
+                                <form action="/form/{{ $data->id }}" method="POST">
                                     @csrf
                                     @method('PATCH')
                                     <input type="hidden" name="is_active" value="0">
-                                    <button class="remove-btn" type="submit">Remove</button>
+                                    <button class="resched-btn" type="submit">ReSched</button>
+                                </form>
+                                <br>
+                                <form action="/form/{{ $data->id }}" method="POST">
+                                    @csrf
+                                    @method('PATCH')
+                                    <input type="hidden" name="is_active" value="0">
+                                    <button class="deactivate-btn" type="submit">Deactivate</button>
                                 </form>
                             </td>
                         </tr>

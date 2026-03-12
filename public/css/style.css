@@ -286,10 +286,10 @@ tbody tr:hover {
 
 /* REMOVE BUTTON */
 
-.remove-btn {
+.deactivate-btn {
     padding: 5px 12px;
     background: transparent;
-    border: 1px solid rgba(255,92,92,0.4);
+    border: 1px solid rgba(255,92,92);
     color: var(--danger);
     font-family: 'DM Sans', sans-serif;
     font-size: 12px;
@@ -298,6 +298,53 @@ tbody tr:hover {
     cursor: pointer;
     transition: background 0.15s, border-color 0.15s;
     white-space: nowrap;
+}
+
+.activate-btn {
+    padding: 5px 12px;
+    background: transparent;
+    border: 1px solid rgba(46, 139, 87);
+    color: rgba(46, 139, 87);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+    white-space: nowrap;
+}
+
+.resched-btn {
+    padding: 5px 12px;
+    background: transparent;
+    border: 1px solid rgba(0,0,255);
+    color: rgba(0,0,255);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+    white-space: nowrap;
+}
+
+
+.activate-btn:hover {
+    background: rgba(255,92,92,0.1);
+    border-color: var(--danger);
+}
+
+.activate-btn:active {
+    transform: scale(0.98);
+}
+
+.resched-btn:hover {
+    background: rgba(255,92,92,0.1);
+    border-color: var(--danger);
+}
+
+.resched-btn:active {
+    transform: scale(0.98);
 }
 
 .remove-btn:hover {

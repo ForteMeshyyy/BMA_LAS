@@ -18,7 +18,7 @@ class ScheduleController extends Controller
         $schedules = Schedule::with([
             'announcement:id,title,content',
             'link:id,title,url'
-        ])->select('id', 'link_id', 'announcement_id', 'schedule', 'type')
+        ])->select('id', 'link_id', 'announcement_id', 'schedule', 'type', 'is_active')->orderBy('is_active', 'desc')
             ->get();
 
         return view('form_page', compact('schedules'));
@@ -166,13 +166,13 @@ class ScheduleController extends Controller
         return response()->json([
             'announcements' => Schedule::with('announcement:id,title,content')
                 ->where('type', 'announcement')
-                ->where('is_active', 1)
+                ->where('is_active', 1)->orderBy('is_active', 'asc')
                 ->get()
                 ->pluck('announcement'),
 
             'links' => Schedule::with('link:id,title,url')
                 ->where('type', 'link')
-                ->where('schedule', $today)->where('is_active', 1)
+                ->where('schedule', $today)->where('is_active', 1)->orderBy('is_active', 'asc')
                 ->get()
                 ->pluck('link'),
         ]);
