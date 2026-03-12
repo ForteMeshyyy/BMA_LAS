@@ -22,7 +22,7 @@ return new class extends Migration
                 ->nullOnDelete();
 
             $table->dateTime('schedule');
-
+            $table->tinyInteger('is_active');
             $table->enum('type', ['link', 'announcement']);
 
             $table->timestamps();
