@@ -6,6 +6,9 @@ use App\Models\Schedule;
 use Illuminate\Http\Request;
 use App\Models\Announcements;
 use App\Models\Links;
+use App\Models\monthly_poster;
+
+use function PHPSTORM_META\type;
 
 class ScheduleController extends Controller
 {
@@ -20,8 +23,10 @@ class ScheduleController extends Controller
             'link:id,title,url'
         ])->select('id', 'link_id', 'announcement_id', 'schedule', 'type', 'is_active')->orderBy('is_active', 'desc')
             ->get();
+        
+        $monthlyPoster = monthly_poster::select('title', 'url')->orderBy('id', 'desc')->first();
 
-        return view('form_page', compact('schedules'));
+        return view('form_page', compact('schedules', 'monthlyPoster'));
     }
 
 
@@ -46,6 +51,16 @@ class ScheduleController extends Controller
             'type'     => 'required|string',
         ]);
 
+        if ($request->type === 'monthlyPoster'){
+            $validated = $request->validate([
+                'title' => 'required|string',
+                'url'   => 'required|url',
+            ]);
+
+            monthly_poster::create($validated);
+            
+        }
+
         if ($request->type === 'announcement') {
             $validated = $request->validate([
                 'title'   => 'required|string',
@@ -55,6 +70,7 @@ class ScheduleController extends Controller
             $announcement = Announcements::create($validated);
             $scheduleData['announcement_id'] = $announcement->id;
         }
+
         if ($request->type === 'link') {
             $validated = $request->validate([
                 'title' => 'required|string',
@@ -65,7 +81,9 @@ class ScheduleController extends Controller
             $scheduleData['link_id'] = $link->id;
         }
 
-        $schedule = Schedule::create($scheduleData);
+        if ($request->type !== 'monthlyPoster') {
+            $schedule = Schedule::create($scheduleData);
+        }
 
         if (request()->expectsJson()) {
             return response()->json($schedule, 201);
@@ -163,6 +181,7 @@ class ScheduleController extends Controller
             'announcements' => Schedule::with('announcement:id,title,content')
                 ->where('type', 'announcement')
                 ->where('is_active', 1)
+                ->whereDate('schedule', $today)
                 ->orderBy('is_active', 'asc')
                 ->get()
                 ->map(fn($s) => array_merge(
@@ -172,7 +191,7 @@ class ScheduleController extends Controller
 
             'links' => Schedule::with('link:id,title,url')
                 ->where('type', 'link')
-                ->where('schedule', $today)
+                ->whereDate('schedule', $today)
                 ->where('is_active', 1)
                 ->orderBy('is_active', 'asc')
                 ->get()
@@ -180,6 +199,8 @@ class ScheduleController extends Controller
                     $s->link->toArray(),
                     ['schedule' => $s->schedule]
                 )),
+
+            'monthlyPosters' => monthly_poster::select('title', 'url')->orderBy('id', 'desc')->first()
         ]);
     }
 

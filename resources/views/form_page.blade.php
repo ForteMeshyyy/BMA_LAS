@@ -121,9 +121,41 @@
                 <button type="submit" class="submit-main">Create Schedule</button>
 
             </form>
+            <br><br>
+            <div>
+                <h2>Monthly Poster</h2>
+                <form action="/form" method="POST">
+                    @csrf
+                    <input type="hidden" name="type" value="monthlyPoster"> {{-- ← missing --}}
+                    <input type="hidden" name="schedule" value="{{ date('Y-m-d') }}"> {{-- required by store() validation --}}
+                    <div>
+                        <label for="monthly-title">Title</label>
+                        <input type="text" id="monthly-title" name="title" required>
+                    </div>
+                    <div>
+                        <label for="monthly-url">URL</label>
+                        <input type="text" id="monthly-url" name="url" required>
+                    </div>
+                    <button type="submit" class="submit-main">Create Monthly Poster</button>
+                </form>
+            </div>
         </div>
 
         <div class="card table-card">
+
+            <h2>Current Monthly Poster</h2>
+            @if($monthlyPoster) {{-- ← was $schedules->type === 'monthlyPoster' --}}
+            <div class="monthly-poster">
+                <h3>{{ $monthlyPoster->title }}</h3>
+                <center>
+                    <img src="{{ $monthlyPoster->url }}" alt="Monthly Poster" width="500">
+                </center>
+            </div>
+            @else
+            <p>No monthly poster scheduled.</p>
+            @endif
+
+
             <h2>Scheduled Items</h2>
 
             <div class="table-wrapper">
