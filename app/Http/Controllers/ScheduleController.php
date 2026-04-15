@@ -23,10 +23,26 @@ class ScheduleController extends Controller
             'link:id,title,url'
         ])->select('id', 'link_id', 'announcement_id', 'schedule', 'type', 'is_active')->orderBy('is_active', 'desc')
             ->get();
-        
+
         $monthlyPoster = monthly_poster::select('title', 'url')->orderBy('id', 'desc')->first();
 
-        return view('form_page', compact('schedules', 'monthlyPoster'));
+        // Load videos from folder
+        $folder = storage_path('app/public/videos');
+
+        if (!is_dir($folder)) {
+            mkdir($folder, 0755, true);
+        }
+
+        $files  = array_diff(scandir($folder), ['.', '..']);
+        $videos = collect($files)->map(function ($filename) {
+            return [
+                'filename' => $filename,
+                'url'      => asset('storage/videos/' . $filename),
+                'uploaded' => date('Y-m-d H:i', filemtime(storage_path('app/public/videos/' . $filename))),
+            ];
+        })->sortByDesc('uploaded')->values();
+
+        return view('form_page', compact('schedules', 'monthlyPoster', 'videos'));
     }
 
 
@@ -51,14 +67,13 @@ class ScheduleController extends Controller
             'type'     => 'required|string',
         ]);
 
-        if ($request->type === 'monthlyPoster'){
+        if ($request->type === 'monthlyPoster') {
             $validated = $request->validate([
                 'title' => 'required|string',
                 'url'   => 'required|url',
             ]);
 
             monthly_poster::create($validated);
-            
         }
 
         if ($request->type === 'announcement') {

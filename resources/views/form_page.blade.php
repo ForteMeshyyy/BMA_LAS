@@ -46,7 +46,6 @@
         function openEdit(id, title, content, url, schedule, type) {
             document.getElementById('edit-form').action = `/form/${id}/edit`;
             document.getElementById('edit-title').value = title;
-
             document.getElementById('edit-content').value = content;
             document.getElementById('edit-url').value = url;
             document.getElementById('edit-schedule').value = schedule.split(' ')[0];
@@ -68,6 +67,15 @@
 
         function closeEdit() {
             document.getElementById('edit-modal').style.display = 'none';
+        }
+
+        function copyLink(index) {
+            const input = document.getElementById('link-' + index);
+            input.select();
+            document.execCommand('copy');
+            const msg = document.getElementById('copied-' + index);
+            msg.style.display = 'inline';
+            setTimeout(() => msg.style.display = 'none', 2000);
         }
     </script>
 </head>
@@ -119,15 +127,16 @@
                 <input type="hidden" name="is_active" value="1">
 
                 <button type="submit" class="submit-main">Create Schedule</button>
-
             </form>
+
             <br><br>
+
             <div>
                 <h2>Monthly Poster</h2>
                 <form action="/form" method="POST">
                     @csrf
-                    <input type="hidden" name="type" value="monthlyPoster"> {{-- ← missing --}}
-                    <input type="hidden" name="schedule" value="{{ date('Y-m-d') }}"> {{-- required by store() validation --}}
+                    <input type="hidden" name="type" value="monthlyPoster">
+                    <input type="hidden" name="schedule" value="{{ date('Y-m-d') }}">
                     <div>
                         <label for="monthly-title">Title</label>
                         <input type="text" id="monthly-title" name="title" required>
@@ -139,12 +148,23 @@
                     <button type="submit" class="submit-main">Create Monthly Poster</button>
                 </form>
             </div>
+
+            <br><br>
+
+            <form action="{{ route('video.upload') }}" method="POST" enctype="multipart/form-data">
+                <h2>UPLOAD VIDEO</h2>
+                <label for="attachVideo">Select a Video file:</label>
+                @csrf
+                <input type="file" id="attachVideo" name="video" accept="video/*">
+                <br><br>
+                <button type="submit" class="submit-main">Upload Video</button>
+            </form>
         </div>
 
         <div class="card table-card">
 
             <h2>Current Monthly Poster</h2>
-            @if($monthlyPoster) {{-- ← was $schedules->type === 'monthlyPoster' --}}
+            @if($monthlyPoster)
             <div class="monthly-poster">
                 <h3>{{ $monthlyPoster->title }}</h3>
                 <center>
@@ -154,7 +174,6 @@
             @else
             <p>No monthly poster scheduled.</p>
             @endif
-
 
             <h2>Scheduled Items</h2>
 
@@ -218,7 +237,9 @@
                     </tbody>
                 </table>
             </div>
+
             <br><br>
+
             <div class="table-wrapper">
                 <h5>Links</h5>
                 <table>
@@ -240,7 +261,6 @@
                             <th>Action</th>
                         </tr>
                     </thead>
-
                     <tbody>
                         @foreach($schedules as $data)
                         @if($data->type === 'link')
@@ -281,8 +301,69 @@
                 </table>
             </div>
 
-        </div>
+            <br><br>
 
+            {{-- VIDEO TABLE --}}
+            <div class="table-wrapper">
+                <h5>Uploaded Videos</h5>
+                <table>
+                    <colgroup>
+                        <col class="col-id">
+                        <col class="col-title">
+                        <col class="col-main">
+                        <col class="col-date">
+                        <col class="col-action">
+                    </colgroup>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>File Name</th>
+                            <th>Link</th>
+                            <th>Uploaded At</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($videos as $index => $video)
+                        <tr>
+                            <td>{{ $index + 1 }}</td>
+                            <td style="font-weight: bold;">{{ $video['filename'] }}</td>
+                            <td>
+                                <div style="display:flex; align-items:center; gap:6px;">
+                                    <input
+                                        type="text"
+                                        id="link-{{ $index }}"
+                                        value="{{ $video['url'] }}"
+                                        readonly
+                                        style="flex:1; padding:4px; font-size:12px;"
+                                    >
+                                    <button class="edit-btn" onclick="copyLink({{ $index }})">Copy</button>
+                                    <span id="copied-{{ $index }}" style="color:green; font-size:12px; display:none;">Copied!</span>
+                                </div>
+                            </td>
+                            <td>{{ $video['uploaded'] }}</td>
+                            <td>
+                                <form action="{{ route('video.destroy') }}" method="POST">
+                                    @csrf
+                                    @method('DELETE')
+                                    <input type="hidden" name="filename" value="{{ $video['filename'] }}">
+                                    <button type="submit" class="deactivate-btn"
+                                        onclick="return confirm('Delete this video?')">
+                                        Delete
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        @empty
+                        <tr>
+                            <td colspan="5">No videos uploaded yet.</td>
+                        </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
 
     </div>
 
